@@ -33,40 +33,145 @@
      <!--   <meta name="format-detection" content="telephone=no" /> -->
         <meta name="msapplication-tap-highlight" content="no" />
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <meta name="viewport" content="width=device-width, initial-scale=1"> 
         <link rel="stylesheet" type="text/css" href="css/index.css" />
-        <link rel="stylesheet"  href="css/jquery.mobile.min.css">
-
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+        <script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
 
         <title>weatherGap</title>
-<!--        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
-        <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
-
-        <script src="../jquery-1.11.0.js" type="text/javascript"></script>
-        <script src="../jquery.mobile-1.4.2/jquery.mobile-1.4.2.js" type="text/javascript"></script>
--->        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
         <meta name="viewport" content="width=device-width"/>
+
+    
     </head>
     <body>
         <div data-role="page" data-id="main" align="center">
             <div data-role="header" data-id="head">
-                <img src="img/weatherGap.png" style="width:100%"></img>
+                <img src="img/weatherGap.png" style="width:80%"></img>
             </div><!--end header-->
 
-            <div data-role="page" id="mainbody">
-            <p>Some stuff</p>
+            
+            <div id="mainbody">
+                <br/><div id="forecast"></div>
+                <input type="text" id="cityin" value="" placeholder="City name" name="cityi"/>
+                <button type="submit" onclick="getWeather()" data-theme="b">Get This Forecast</button>
+                <button type="submit" onclick="getLoc()" data-theme="b">Get GPS Coordinates</button>
+                <br/><div id="geoLoc"></div>
             </div><!--//end main body-->
             
             <div data-role="footer" data-id="foot" data-position="fixed">
                 <div data-role="navbar">
-                    <ul>
+                    <ul class="ui-grid-a">
                     <li><a href="http://openweathermap.org" class="ui-btn">Weather Resources</a></li>
                     </ul>
                 </div>
             </div><!-- end footer-->
         </div><!--end page-->
     </body>
+
+    <script type="text/javascript">
+
+        //
+        
+
+        function getWeather(){
+                
+            var loc = document.getElementById("cityin").value;
+            //document.getElementById("forecast").innerHTML = loc;
+            //var surl = 'http://api.openweathermap.org/data/2.5/forecast/daily?q='+loc+',us&cnt=5&mode=json';
+            //document.getElementById("forecast").innerHTML += '<br/>'+surl+'<br/>';
+
+            $.ajax({url:'http://api.openweathermap.org/data/2.5/forecast/daily?q='+loc+',us&cnt=5&mode=json',
+            }).done(function(data){
+                //document.getElementById("forecast").innerHTML += "Got json";
+
+                var forcast = parseJSON(data);
+               // document.getElementById("forecast").innerHTML += "<br/>JSON Parsed<br/>";
+                showForecast(forcast, loc);
+            });
+        }//end getWeather
+
+        function parseJSON(data){
+            //NumDays is set to 5 since this is call to the open weather api 
+             //requested a 5 day forecast.
+             //This also conviently will only show the first result from 
+             //the returned json and therefroe will only show the first
+             //city's weather if it happened to return more than one's data.
+            var numDays = 5;
+            var forecast = [];
+
+            for(var x=0; x<numDays; x++){
+                var weather = data.list[x].weather[0].main;
+                var time = data.list[x].dt;
+                var date = new Date(0);
+                date.setUTCSeconds(time);
+                var day = getDayString(date.getDay());
+                var description = data.list[x].weather[0].description;
+                var tempk = data.list[x].temp.day;
+                var tempf = (tempk-273.15)*1.8+32;
+                tempf = Math.round(tempf);
+                var icon = data.list[x].weather[0].icon;
+
+            //    document.getElementById("forecast").innerHTML = data;
+
+                forecast.push({
+                    weather:weather, date:date,
+                    day:day, description:description,
+                    tempf:tempf, icon:icon
+                });
+            }//end for var xsd
+
+            return forecast;
+        }//end parseJSON
+
+        function getDayString(da){
+            var day;
+            switch(da){
+                case 0: day = "Sun"; break;
+                case 1: day = "Mon"; break;
+                case 2:  day = "Tue"; break;
+                case 3: day = "Wed"; break;
+                case 4: day = "Thu"; break;
+                case 5: day = "Fri"; break;
+                case 6: day = "Sat"; break;
+                default: day = "NON";
+            }//end switch
+            return day;
+        }//end getDayString
+
+        function showForecast(cast, loc){
+            var outstr = 'Forecast for '+loc+'<br/><br/><hr/>';
+
+            outstr += cast[0].day +'<br/>'+ cast[0].date +'<br/>'+ cast[0].tempf +'&deg;<br/><img id="weathicon" src="http://openweathermap.org/img/w/' + cast[0].icon +'.png"><br/>' + cast[0].weather +'<br/><br/><hr/>';
+            outstr += cast[1].day +'<br/>'+ cast[1].date +'<br/>'+ cast[1].tempf +'&deg;<br/><img id="weathicon" src="http://openweathermap.org/img/w/' + cast[1].icon +'.png"><br/>' + cast[1].weather +'<br/><br/><hr/>';
+            outstr += cast[2].day +'<br/>'+ cast[2].date +'<br/>'+ cast[2].tempf +'&deg;<br/><img id="weathicon" src="http://openweathermap.org/img/w/' + cast[2].icon +'.png"><br/>' + cast[2].weather +'<br/><br/><hr/>';
+            outstr += cast[3].day +'<br/>'+ cast[3].date +'<br/>'+ cast[3].tempf +'&deg;<br/><img id="weathicon" src="http://openweathermap.org/img/w/' + cast[3].icon +'.png"><br/>' + cast[3].weather +'<br/><br/><hr/>';
+            outstr += cast[4].day +'<br/>'+ cast[4].date +'<br/>'+ cast[4].tempf +'&deg;<br/><img id="weathicon" src="http://openweathermap.org/img/w/' + cast[4].icon +'.png"><br/>' + cast[4].weather +'<br/><br/><hr/>';
+            
+
+            document.getElementById("forecast").innerHTML += outstr;
+        }//end showForecast
+
+        function getLoc(){
+            navigator.geolocation.getCurrentPosition(onSuccess,onError);
+        }//end getLoc
+
+        //function that is call if getLoc() encounters an error
+        function onError(error){
+            alert(error.message + '\n' + 'Error Code: ' + error.code);
+        }//end onError
+
+        function onSuccess(position){
+            var result = "Your Location<br/>";
+            result += 'Latitude: ' + position.coords.latitude + '<br/>';
+            result += 'Longitude: ' + position.coords.longitude;
+
+            document.getElementById("geoLoc").innerHTML = result;
+        }//end on success;
+    </script>
+
 </html>
 
 

@@ -113,3 +113,31 @@ h1 {
     animation:fade 3000ms infinite;
     -webkit-animation:fade 3000ms infinite;
 }
+
+#cityin {
+    font-size: 36px;
+    padding: 3px;
+    text-align: center;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+#forecast {
+    font-size: 24px;
+}
+
+#geoLoc {
+    font-size: 24px;
+}
+
+#weathicon {
+    width: 30%;
+}
+
+button {
+    font-size: 30px;
+    padding: 5px;
+    width: 100%;
+    margin-bottom: 3px;
+}
+
