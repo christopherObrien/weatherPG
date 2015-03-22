@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.phonegap.weatherGap" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>WeatherMe,Pls</name>
+<widget id="com.phonegap.weatherGap" version="3.5.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/3.5">
+    <name>weatherGap</name>
     <description>
 
     </description>
     <author email="support@phonegap.com" href="http://phonegap.com">
-        BGProductions
+        
     </author>
     <content src="index.html" />
     <preference name="permissions" value="none" />
